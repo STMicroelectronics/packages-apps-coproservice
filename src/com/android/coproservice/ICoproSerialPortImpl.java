@@ -18,6 +18,7 @@ package com.android.coproservice;
 
 import android.util.Log;
 import android.util.Slog;
+import java.util.ArrayList;
 
 import android.os.RemoteException;
 
@@ -68,9 +69,31 @@ class ICoproSerialPortImpl extends ICoproSerialPort.Stub {
     }
 
     @Override
+    public byte[] readB(int size) throws RemoteException {
+        ReadBCallback cb = new ReadBCallback();
+        if(mCoproSerialPortHal != null) {
+            mCoproSerialPortHal.readB(size, cb);
+        }
+        return cb.getResult();
+    }
+
+    @Override
     public void write(String command) throws RemoteException {
         if(mCoproSerialPortHal != null) {
             mCoproSerialPortHal.write(command);
         }
+    }
+
+    @Override
+    public int writeB(byte[] command) throws RemoteException {
+        WriteBCallback cb = new WriteBCallback();
+        ArrayList<Byte> arraylist = new ArrayList();
+        if(mCoproSerialPortHal != null) {
+            for(byte b : command) {
+                arraylist.add(new Byte(b));
+            }
+            mCoproSerialPortHal.writeB(arraylist, cb);
+        }
+        return cb.getResult();
     }
 }
